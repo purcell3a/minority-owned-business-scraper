@@ -412,15 +412,26 @@ type AddAll {
 }
 
 input AddAllInput{
+	Product: ProductInput
 	Department: Department
+	Style: StyleInput
+	Category: CategoryInput
+	Type: TypeInput
+	Contact: ContactInput
+	Address: AddressInput
+	BuyFrom: [BuyFromInput]
+	Image: [ImageInput]
+	Logo: LogoInput
+	Company: CompanyInput
+	Reviews: [ReviewsInput]
 }
 
 
 type Mutation {
-  addAll(input: AddAllInput!): Product
+  addAll(input: AddAllInput!): AddAll
 }
 
 type Query {
-  Products: [Product!]!
-  Product(input: ID!): Product!
+  FetchAllProducts: [Product!]!
+  FetchProduct(input: ID!): Product!
 }

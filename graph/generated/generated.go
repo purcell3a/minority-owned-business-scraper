@@ -136,8 +136,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Product  func(childComplexity int, input string) int
-		Products func(childComplexity int) int
+		FetchAllProducts func(childComplexity int) int
+		FetchProduct     func(childComplexity int, input string) int
 	}
 
 	Reviews struct {
@@ -167,11 +167,11 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	AddAll(ctx context.Context, input model.AddAllInput) (*model.Product, error)
+	AddAll(ctx context.Context, input model.AddAllInput) (*model.AddAll, error)
 }
 type QueryResolver interface {
-	Products(ctx context.Context) ([]*model.Product, error)
-	Product(ctx context.Context, input string) (*model.Product, error)
+	FetchAllProducts(ctx context.Context) ([]*model.Product, error)
+	FetchProduct(ctx context.Context, input string) (*model.Product, error)
 }
 
 type executableSchema struct {
@@ -600,24 +600,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product_Navigation.TypeID(childComplexity), true
 
-	case "Query.Product":
-		if e.complexity.Query.Product == nil {
+	case "Query.FetchAllProducts":
+		if e.complexity.Query.FetchAllProducts == nil {
 			break
 		}
 
-		args, err := ec.field_Query_Product_args(context.TODO(), rawArgs)
+		return e.complexity.Query.FetchAllProducts(childComplexity), true
+
+	case "Query.FetchProduct":
+		if e.complexity.Query.FetchProduct == nil {
+			break
+		}
+
+		args, err := ec.field_Query_FetchProduct_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Product(childComplexity, args["input"].(string)), true
-
-	case "Query.Products":
-		if e.complexity.Query.Products == nil {
-			break
-		}
-
-		return e.complexity.Query.Products(childComplexity), true
+		return e.complexity.Query.FetchProduct(childComplexity, args["input"].(string)), true
 
 	case "Reviews.Date":
 		if e.complexity.Reviews.Date == nil {
@@ -1226,17 +1226,28 @@ type AddAll {
 }
 
 input AddAllInput{
+	Product: ProductInput
 	Department: Department
+	Style: StyleInput
+	Category: CategoryInput
+	Type: TypeInput
+	Contact: ContactInput
+	Address: AddressInput
+	BuyFrom: [BuyFromInput]
+	Image: [ImageInput]
+	Logo: LogoInput
+	Company: CompanyInput
+	Reviews: [ReviewsInput]
 }
 
 
 type Mutation {
-  addAll(input: AddAllInput!): Product
+  addAll(input: AddAllInput!): AddAll
 }
 
 type Query {
-  Products: [Product!]!
-  Product(input: ID!): Product!
+  FetchAllProducts: [Product!]!
+  FetchProduct(input: ID!): Product!
 }
 `, BuiltIn: false},
 }
@@ -1261,7 +1272,7 @@ func (ec *executionContext) field_Mutation_addAll_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_Product_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_FetchProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -3213,9 +3224,9 @@ func (ec *executionContext) _Mutation_addAll(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Product)
+	res := resTmp.(*model.AddAll)
 	fc.Result = res
-	return ec.marshalOProduct2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+	return ec.marshalOAddAll2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐAddAll(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addAll(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3226,24 +3237,26 @@ func (ec *executionContext) fieldContext_Mutation_addAll(ctx context.Context, fi
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "ID":
-				return ec.fieldContext_Product_ID(ctx, field)
-			case "Title":
-				return ec.fieldContext_Product_Title(ctx, field)
+			case "Product":
+				return ec.fieldContext_AddAll_Product(ctx, field)
 			case "Company":
-				return ec.fieldContext_Product_Company(ctx, field)
-			case "Verified":
-				return ec.fieldContext_Product_Verified(ctx, field)
-			case "Average_Rating":
-				return ec.fieldContext_Product_Average_Rating(ctx, field)
-			case "Rating_Quanitity":
-				return ec.fieldContext_Product_Rating_Quanitity(ctx, field)
-			case "Price_Bottom":
-				return ec.fieldContext_Product_Price_Bottom(ctx, field)
-			case "Price_Top":
-				return ec.fieldContext_Product_Price_Top(ctx, field)
+				return ec.fieldContext_AddAll_Company(ctx, field)
+			case "Category":
+				return ec.fieldContext_AddAll_Category(ctx, field)
+			case "Style":
+				return ec.fieldContext_AddAll_Style(ctx, field)
+			case "Type":
+				return ec.fieldContext_AddAll_Type(ctx, field)
+			case "Department":
+				return ec.fieldContext_AddAll_Department(ctx, field)
+			case "Reviews":
+				return ec.fieldContext_AddAll_Reviews(ctx, field)
+			case "BuyFrom":
+				return ec.fieldContext_AddAll_BuyFrom(ctx, field)
+			case "Image":
+				return ec.fieldContext_AddAll_Image(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AddAll", field.Name)
 		},
 	}
 	defer func() {
@@ -3834,8 +3847,8 @@ func (ec *executionContext) fieldContext_Product_Navigation_Style_ID(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_Products(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_Products(ctx, field)
+func (ec *executionContext) _Query_FetchAllProducts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_FetchAllProducts(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3848,7 +3861,7 @@ func (ec *executionContext) _Query_Products(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Products(rctx)
+		return ec.resolvers.Query().FetchAllProducts(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3865,7 +3878,7 @@ func (ec *executionContext) _Query_Products(ctx context.Context, field graphql.C
 	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_Products(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_FetchAllProducts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3896,8 +3909,8 @@ func (ec *executionContext) fieldContext_Query_Products(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_Product(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_Product(ctx, field)
+func (ec *executionContext) _Query_FetchProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_FetchProduct(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3910,7 +3923,7 @@ func (ec *executionContext) _Query_Product(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Product(rctx, fc.Args["input"].(string))
+		return ec.resolvers.Query().FetchProduct(rctx, fc.Args["input"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3927,7 +3940,7 @@ func (ec *executionContext) _Query_Product(ctx context.Context, field graphql.Co
 	return ec.marshalNProduct2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_Product(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_FetchProduct(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3962,7 +3975,7 @@ func (ec *executionContext) fieldContext_Query_Product(ctx context.Context, fiel
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_Product_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_FetchProduct_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -6534,18 +6547,106 @@ func (ec *executionContext) unmarshalInputAddAllInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"Department"}
+	fieldsInOrder := [...]string{"Product", "Department", "Style", "Category", "Type", "Contact", "Address", "BuyFrom", "Image", "Logo", "Company", "Reviews"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "Product":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Product"))
+			it.Product, err = ec.unmarshalOProductInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐProductInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "Department":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Department"))
 			it.Department, err = ec.unmarshalODepartment2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐDepartment(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Style":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Style"))
+			it.Style, err = ec.unmarshalOStyleInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐStyleInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Category":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Category"))
+			it.Category, err = ec.unmarshalOCategoryInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCategoryInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Type":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Type"))
+			it.Type, err = ec.unmarshalOTypeInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐTypeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Contact":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Contact"))
+			it.Contact, err = ec.unmarshalOContactInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐContactInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Address":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Address"))
+			it.Address, err = ec.unmarshalOAddressInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐAddressInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "BuyFrom":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("BuyFrom"))
+			it.BuyFrom, err = ec.unmarshalOBuyFromInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐBuyFromInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Image":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Image"))
+			it.Image, err = ec.unmarshalOImageInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐImageInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Logo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Logo"))
+			it.Logo, err = ec.unmarshalOLogoInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐLogoInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Company":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Company"))
+			it.Company, err = ec.unmarshalOCompanyInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCompanyInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Reviews":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Reviews"))
+			it.Reviews, err = ec.unmarshalOReviewsInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐReviewsInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7824,7 +7925,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "Products":
+		case "FetchAllProducts":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7833,7 +7934,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_Products(ctx, field)
+				res = ec._Query_FetchAllProducts(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7847,7 +7948,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "Product":
+		case "FetchProduct":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7856,7 +7957,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_Product(ctx, field)
+				res = ec._Query_FetchProduct(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -8699,6 +8800,21 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAddAll2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐAddAll(ctx context.Context, sel ast.SelectionSet, v *model.AddAll) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AddAll(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOAddressInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐAddressInput(ctx context.Context, v interface{}) (*model.AddressInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAddressInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8732,6 +8848,34 @@ func (ec *executionContext) marshalOBuyFrom2ᚖgithubᚗcomᚋpurcell3aᚋminori
 	return ec._BuyFrom(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOBuyFromInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐBuyFromInput(ctx context.Context, v interface{}) ([]*model.BuyFromInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.BuyFromInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOBuyFromInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐBuyFromInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOBuyFromInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐBuyFromInput(ctx context.Context, v interface{}) (*model.BuyFromInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputBuyFromInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCategory(ctx context.Context, sel ast.SelectionSet, v *model.Category) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -8739,11 +8883,35 @@ func (ec *executionContext) marshalOCategory2ᚖgithubᚗcomᚋpurcell3aᚋminor
 	return ec._Category(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOCategoryInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCategoryInput(ctx context.Context, v interface{}) (*model.CategoryInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCategoryInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOCompany2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCompany(ctx context.Context, sel ast.SelectionSet, v *model.Company) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Company(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCompanyInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐCompanyInput(ctx context.Context, v interface{}) (*model.CompanyInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCompanyInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOContactInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐContactInput(ctx context.Context, v interface{}) (*model.ContactInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputContactInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalODateTime2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
@@ -8817,6 +8985,34 @@ func (ec *executionContext) marshalOImage2ᚖgithubᚗcomᚋpurcell3aᚋminority
 	return ec._Image(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOImageInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐImageInput(ctx context.Context, v interface{}) ([]*model.ImageInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.ImageInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOImageInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐImageInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOImageInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐImageInput(ctx context.Context, v interface{}) (*model.ImageInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputImageInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -8831,6 +9027,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOLogoInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐLogoInput(ctx context.Context, v interface{}) (*model.LogoInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLogoInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOOffering2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐOffering(ctx context.Context, v interface{}) (*model.Offering, error) {
@@ -8856,11 +9060,47 @@ func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋpurcell3aᚋminori
 	return ec._Product(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOProductInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐProductInput(ctx context.Context, v interface{}) (*model.ProductInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputProductInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOReviews2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐReviews(ctx context.Context, sel ast.SelectionSet, v *model.Reviews) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Reviews(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOReviewsInput2ᚕᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐReviewsInput(ctx context.Context, v interface{}) ([]*model.ReviewsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.ReviewsInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOReviewsInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐReviewsInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOReviewsInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐReviewsInput(ctx context.Context, v interface{}) (*model.ReviewsInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputReviewsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
@@ -8886,11 +9126,27 @@ func (ec *executionContext) marshalOStyle2ᚖgithubᚗcomᚋpurcell3aᚋminority
 	return ec._Style(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOStyleInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐStyleInput(ctx context.Context, v interface{}) (*model.StyleInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputStyleInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOType2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐType(ctx context.Context, sel ast.SelectionSet, v *model.Type) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Type(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTypeInput2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐTypeInput(ctx context.Context, v interface{}) (*model.TypeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTypeInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUSStates2ᚖgithubᚗcomᚋpurcell3aᚋminorityᚑbizᚑapiᚋgraphᚋmodelᚐUSStates(ctx context.Context, v interface{}) (*model.USStates, error) {

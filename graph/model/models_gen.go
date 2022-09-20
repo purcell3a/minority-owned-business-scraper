@@ -21,7 +21,18 @@ type AddAll struct {
 }
 
 type AddAllInput struct {
-	Department *Department `json:"Department"`
+	Product    *ProductInput   `json:"Product"`
+	Department *Department     `json:"Department"`
+	Style      *StyleInput     `json:"Style"`
+	Category   *CategoryInput  `json:"Category"`
+	Type       *TypeInput      `json:"Type"`
+	Contact    *ContactInput   `json:"Contact"`
+	Address    *AddressInput   `json:"Address"`
+	BuyFrom    []*BuyFromInput `json:"BuyFrom"`
+	Image      []*ImageInput   `json:"Image"`
+	Logo       *LogoInput      `json:"Logo"`
+	Company    *CompanyInput   `json:"Company"`
+	Reviews    []*ReviewsInput `json:"Reviews"`
 }
 
 type Address struct {
