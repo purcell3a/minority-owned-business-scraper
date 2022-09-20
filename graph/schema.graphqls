@@ -1,3 +1,11 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+schema {
+	query: Query
+	mutation: Mutation
+}
 enum Color{
 	Blue
 	Red
@@ -389,4 +397,30 @@ input ReviewsInput{
 	User: String
 	Date: DateTime
 	Stars: Float
+}
+
+type AddAll {
+	Product: Product
+	Company: Company
+	Category: Category
+	Style: Style
+	Type: Type
+	Department: Department
+	Reviews: Reviews
+	BuyFrom: BuyFrom
+	Image: Image
+}
+
+input AddAllInput{
+	Department: Department
+}
+
+
+type Mutation {
+  addAll(input: AddAllInput!): Product
+}
+
+type Query {
+  Products: [Product!]!
+  Product(input: ID!): Product!
 }
