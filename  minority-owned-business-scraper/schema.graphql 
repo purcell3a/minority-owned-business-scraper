@@ -1,0 +1,126 @@
+enum Color{
+	Blue
+	Red
+	Orange
+	Pink
+	Purple
+	Yellow
+	Tan
+	Brown
+	Green
+	White
+	Grey
+	Black
+	Silver
+	Gold
+	YellowGold
+	WhiteGold
+}
+
+enum SizeRange{
+	Petite
+	Regular
+	Junior
+	Maternity
+}
+
+enum ShoeSize{
+	Four
+	Five
+	Six
+	Seven
+	Eight
+	Nine
+	Ten
+	Eleven
+	Twelve
+	Thirteen
+}
+
+enum Material{
+	Cotton
+	Spandex
+	Lycra
+	Linen
+}
+
+enum Website{
+	Amazon
+	Etsy
+	Shopify
+	WooCommerce
+}
+
+enum Department{
+	"""
+	Clothing and shoes
+	"""
+	Clothing
+	Jewelry
+	Accessories
+	Home
+	Garden
+	Shoes
+	Beauty
+	Baby
+	Grocery
+	Pets
+}
+
+enum ClothingCategory{
+	MenIdentifying
+	WomenIdentifying
+	Unisex
+	Toddler
+	Baby
+	Petite
+	Plus
+	Maternity
+	Children
+}
+
+enum AcessoryCategory{
+	Bracelet
+	Earing
+	Ring
+	Knecklace
+	Set
+	Belt
+	Hat
+	Scarf
+	Bag
+	Watch
+	Wallet
+	Gloves
+}
+
+enum AccessoryType{
+	CrossBody
+	BackPack
+	Shoulder
+}
+
+enum ClothingType{
+	Tops
+	Sweaters
+	Jeans
+	Coats
+	Pants
+	Shorts
+	Skirts
+	Swim
+	Activewear
+	Skorts
+	Lingerie
+	Dresses
+}
+
+enum ShoesType{
+	Boots
+	Sandal
+	Slipper
+	Pump
+	FashionSneaker
+	Athletic
+	Flats
+}
