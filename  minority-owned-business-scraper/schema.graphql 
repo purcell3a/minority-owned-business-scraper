@@ -124,3 +124,269 @@ enum ShoesType{
 	Athletic
 	Flats
 }
+
+type Contact{
+	Email: String
+	Phone: String
+	Fname: String
+	Lname: String
+	Twitter: String
+	Instagram: String
+	TikTok: String
+	Pinterest: String
+}
+
+type Address{
+	Address_Line1: String
+	Address_Line2: String
+	Address_To: String
+	City: String
+	Zip: String
+	State: USStates
+	Country: String
+}
+
+enum USStates{
+	Wyoming
+	Wisconsin
+	West_Virginia
+	Washington
+	Virginia1
+	Vermont
+	Utah
+	Texas
+	Tennessee
+	South_Dakota
+	South_Carolina
+	Rhode_Island
+	Pennsylvania
+	Oregon
+	Oklahoma
+	Ohio
+	North_Dakota
+	North_Carolina
+	New_York
+	New_Mexico
+	New_Jersey
+	New_Hampshire
+	Nevada
+	Nebraska
+	Montana
+	Missouri
+	Mississippi
+	Minnesota
+	Michigan
+	Massachusetts
+	Maryland
+	Maine
+	Louisiana
+	Kentucky
+	Kansas
+	Iowa
+	Indiana
+	Illinois
+	Idaho
+	Hawaii
+	Georgia
+	Florida
+	Delaware
+	Connecticut
+	Colorado
+	California
+	Arkansas
+	Arizona
+	Alaska
+	Alabama
+}
+
+enum Country{
+	United_States
+}
+
+input AddressInput{
+	Address_Line1: String
+	Address_Line2: String
+	Address_To: String
+	City: String
+	Zip: String
+	State: USStates
+	Country: String
+	ID: ID
+}
+
+input ContactInput{
+	Email: String
+	Phone: String
+	Fname: String
+	Lname: String
+	Twitter: String
+	Instagram: String
+	TikTok: String
+	Pinterest: String
+	ID: ID
+}
+
+type Image{
+	ID: ID
+	URL: String
+}
+
+input ImageInput{
+	ID: ID
+	URL: String
+}
+
+type Type{
+	ID: ID
+	Department_ID: ID
+	Category_ID: ID
+	Style_ID: ID
+	Title: String
+}
+
+input TypeInput{
+	ID: ID
+	Department_ID: ID
+	Category_ID: ID
+	Style_ID: ID
+	Title: String
+}
+
+type Category{
+	ID: ID
+	Title: String
+	Department_ID: ID
+	Style_ID: ID
+	Type_ID: ID
+}
+
+input CategoryInput{
+	ID: ID
+	Title: String
+	Department_ID: ID
+	Style_ID: ID
+	Type_ID: ID
+}
+
+type Logo{
+	ID: ID
+	URL: String
+}
+
+input LogoInput{
+	ID: ID
+	URL: String
+}
+
+type Style{
+	ID: ID
+	Title: String
+	Department_ID: ID
+	Category_ID: ID
+	Type_ID: ID
+}
+
+input StyleInput{
+	ID: ID
+	Title: String
+	Department_ID: ID
+	Category_ID: ID
+	Type_ID: ID
+}
+
+type BuyFrom{
+	ID: ID
+	Link: String
+	Price: Float
+	Logo_ID: ID
+	Company_ID: ID
+}
+
+input BuyFromInput{
+	ID: ID
+	Link: String
+	Price: Float
+	Logo_ID: ID
+	Company_ID: ID
+}
+
+type Product{
+	ID: ID
+	Title: String
+	Company: String
+	Verified: Boolean
+	Average_Rating: Float
+	Rating_Quanitity: Int
+	Price_Bottom: Float
+	Price_Top: Float
+}
+
+type Company{
+	ID: ID
+	Title: String
+	Verified: Boolean
+	Owned: Boolean
+	Offering: Offering
+}
+
+enum Offering{
+	Service
+	Product
+}
+
+input ProductInput{
+	ID: ID
+	Title: String
+	Company: String
+	Verified: Boolean
+	Average_Rating: Float
+	Rating_Quanitity: Int
+	Price_Bottom: Float
+	Price_Top: Float
+}
+
+input CompanyInput{
+	ID: ID
+	Title: String
+	Verified: Boolean
+	Owned: Boolean
+	Offering: Offering
+}
+
+type Product_Navigation{
+	ID: ID
+	Product_ID: ID
+	Department_ID: ID
+	Category_ID: ID
+	Type_ID: ID
+	Style_ID: ID
+}
+
+input Product_NavigationInput{
+	ID: ID
+	Product_ID: ID
+	Department_ID: ID
+	Category_ID: ID
+	Type_ID: ID
+	Style_ID: ID
+}
+
+type Reviews{
+	ID: ID
+	Platform: Website
+	Review: String
+	User: String
+	Date: DateTime
+	Stars: Float
+}
+
+scalar DateTime
+
+input ReviewsInput{
+	ID: ID
+	Platform: Website
+	Review: String
+	User: String
+	Date: DateTime
+	Stars: Float
+}
